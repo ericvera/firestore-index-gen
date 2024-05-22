@@ -22,16 +22,21 @@ if (!firebaseConfigRaw) {
 
 const firebaseConfig: unknown = JSON.parse(firebaseConfigRaw)
 const indexesPath =
-  getFirestoreIndexesPath(firebaseConfig) ??
+  getFirestoreIndexesPath(firebaseConfig, firebasaeConfigPath) ??
   // If not found in firebase.json, try to find firestore.indexes.json in the
   // project root
   (await findUp('firestore.indexes.json'))
 
+const indexesFileExist =
+  indexesPath !== undefined && (await pathExists(indexesPath))
+
+const indexesContent = indexesFileExist
+  ? await readFile(indexesPath, 'utf8')
+  : undefined
+
 console.log('Hello!')
 console.log('process.cwd()', process.cwd())
 console.log('indexedPath:', indexesPath)
-console.log(
-  'indexedPath exists:',
-  indexesPath !== undefined && (await pathExists(indexesPath)),
-)
+console.log('indexedPath exists:', indexesFileExist)
+console.log('indexedPath content:', indexesContent)
 console.log('Bye!')

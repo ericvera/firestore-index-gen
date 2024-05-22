@@ -1,5 +1,8 @@
+import * as path from 'path'
+
 export const getFirestoreIndexesPath = (
   firebaseConfig: unknown,
+  firebaseConfigPath: string,
 ): string | undefined => {
   if (typeof firebaseConfig !== 'object' || firebaseConfig === null) {
     return undefined
@@ -20,5 +23,5 @@ export const getFirestoreIndexesPath = (
     return undefined
   }
 
-  return firebaseConfig.firestore.indexes
+  return path.join(firebaseConfigPath, firebaseConfig.firestore.indexes)
 }

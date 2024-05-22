@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+# Do not run docs on CI
+yarn is-ci || yarn docs
+
+yarn lint-staged
+
+# Check if there are unstaged changes to README.md
+DOCS_ADDED=$(git ls-files --others --exclude-standard docs)
+DOCS_MODIFIED=$(git ls-files --modified docs)
+DOCS_DELETED=$(git ls-files --deleted docs)
+
+if [ "$DOCS_ADDED" != "" ] || [ "$DOCS_MODIFIED" != "" ] || [ "$DOCS_DELETED" != "" ]; then
+    echo "---------------------------------------------------------------------"
+    echo "Commit blocked by pre-commit hook."
+    echo "---------------------------------------------------------------------"
+    echo "WHY?"
+    echo "There are unstaged changes in the /docs directory which means that"
+    echo "those changes won't be committed. In order to ensure that the "
+    echo "documentation stays up to date with the code documentation is"
+    echo "generated using tsdoc as a precommit hook."
+    echo ""
+    echo "FIX"
+    echo " 1. Review the changes to files in the docs directory"
+    echo " 2. Stage the changes"
+    echo " 3. Commit the changes"
+    echo "---------------------------------------------------------------------"
+    exit 1
+fi

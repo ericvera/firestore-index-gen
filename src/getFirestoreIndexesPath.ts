@@ -23,5 +23,8 @@ export const getFirestoreIndexesPath = (
     return undefined
   }
 
-  return path.join(firebaseConfigPath, firebaseConfig.firestore.indexes)
+  return path.join(
+    path.dirname(firebaseConfigPath),
+    firebaseConfig.firestore.indexes,
+  )
 }

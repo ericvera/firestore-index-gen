@@ -58,5 +58,8 @@
   "lint-staged": {
     "*.{ts,tsx,mjs}": "eslint --cache",
     "*": "prettier --ignore-unknown --write"
+  },
+  "dependencies": {
+    "find-up": "^7.0.0"
   }
 }

@@ -1,9 +1,37 @@
 #! /usr/bin/env node
-import { findUp } from 'find-up'
+import { findUp, pathExists } from 'find-up'
+import { readFile } from 'fs/promises'
+import { getFirestoreIndexesPath } from './getFirestoreIndexesPath.js'
 
-const indexPath = await findUp('firebase.index.json')
+// Find firebase.json as path to firestore.indexes.json may be defined there
+const firebasaeConfigPath = await findUp('firebase.json')
+
+if (firebasaeConfigPath) {
+  console.log('firebase.json found at:', firebasaeConfigPath)
+} else {
+  console.error('firebase.json not found')
+  process.exit(1)
+}
+
+const firebaseConfigRaw = await readFile(firebasaeConfigPath, 'utf8')
+
+if (!firebaseConfigRaw) {
+  console.error('firebase.json is empty')
+  process.exit(1)
+}
+
+const firebaseConfig: unknown = JSON.parse(firebaseConfigRaw)
+const indexesPath =
+  getFirestoreIndexesPath(firebaseConfig) ??
+  // If not found in firebase.json, try to find firestore.indexes.json in the
+  // project root
+  (await findUp('firestore.indexes.json'))
 
 console.log('Hello!')
 console.log('process.cwd()', process.cwd())
-console.log('indexPath:', indexPath)
+console.log('indexedPath:', indexesPath)
+console.log(
+  'indexedPath exists:',
+  indexesPath !== undefined && (await pathExists(indexesPath)),
+)
 console.log('Bye!')

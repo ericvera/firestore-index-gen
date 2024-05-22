@@ -1,10 +1,11 @@
 {
-  "name": "i-forgot-to-rename-my-package",
+  "name": "firestore-index-gen",
   "version": "0.0.1",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
   },
+  "bin": "./dist/index.js",
   "files": [
     "dist",
     "!/**/__test__",
@@ -17,9 +18,7 @@
   "scripts": {
     "build": "tsc --build",
     "lint": "eslint .",
-    "test": "vitest run",
-    "smoke": "yarn build && yarn lint && yarn test",
-    "docs": "typedoc && prettier --ignore-unknown --write docs/",
+    "smoke": "yarn build && yarn lint",
     "-- PRE-COMMIT HOOKS --": "",
     "postinstall": "husky || true",
     "prepublishOnly": "pinst --disable",
@@ -33,15 +32,11 @@
     "@types/node": "^20.12.12",
     "eslint": "^9.3.0",
     "husky": "^9.0.11",
-    "is-ci": "^3.0.1",
     "lint-staged": "^15.2.4",
     "pinst": "^3.0.0",
     "prettier": "^3.2.5",
-    "typedoc": "^0.25.13",
-    "typedoc-plugin-markdown": "^4.0.2",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.10.0",
-    "vitest": "^1.6.0"
+    "typescript-eslint": "^7.10.0"
   },
   "prettier": {
     "tabWidth": 2,
@@ -50,9 +45,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/i-forgot-to-rename-my-package"
+    "url": "https://github.com/ericvera/firestore-index-gen"
   },
-  "keywords": [],
+  "keywords": [
+    "firestore",
+    "index",
+    "generator",
+    "cli",
+    "emulator"
+  ],
   "license": "MIT",
   "lint-staged": {
     "*.{ts,tsx,mjs}": "eslint --cache",

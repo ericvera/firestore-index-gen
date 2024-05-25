@@ -1,64 +1,44 @@
 #! /usr/bin/env node
-import { findUp, pathExists } from 'find-up'
-import { readFile } from 'fs/promises'
-import { getFirestoreEmulatorPort } from './getFirestoreEmulatorPort.js'
-import { getFirestoreIndexesPath } from './getFirestoreIndexesPath.js'
+import chalk from 'chalk'
+import { writeFile } from 'fs/promises'
+import { checkIndexes } from './checkIndexes.js'
+import { getEmulatorIndexReport } from './getEmulatorIndexReport.js'
+import { getFirebaseConfig } from './getFirebaseConfig.js'
+import { getFirestoreIndexes } from './getFirestoreIndexes.js'
+import { getIndexFromReport } from './getIndexFromReport.js'
+import { getOptions } from './getOptions.js'
+import { printHeader } from './printHeader.js'
 
-const projectId = process.argv[2]
+const { projectId, check, overwrite } = getOptions()
 
-if (!projectId) {
-  console.error('Project ID is required')
-  console.error('Usage: firestore-index-gen <project-id>')
-  process.exit(1)
+const { path: configPath, config } = await getFirebaseConfig()
+
+// Get current indexes from firestore.indexes.json in the project
+const { path: indexesPath, indexes: currentIndexes } =
+  await getFirestoreIndexes(config, configPath)
+
+const indexReport = await getEmulatorIndexReport(
+  projectId,
+  config.emulators?.firestore?.port ?? 8080,
+)
+
+const newIndexes = getIndexFromReport(indexReport.reports)
+
+printHeader()
+
+if (check) {
+  checkIndexes(currentIndexes, newIndexes)
 }
 
-// Find firebase.json as path to firestore.indexes.json may be defined there
-const firebasaeConfigPath = await findUp('firebase.json')
+if (overwrite) {
+  await writeFile(indexesPath, JSON.stringify(newIndexes, null, 2))
 
-if (firebasaeConfigPath) {
-  console.log('firebase.json found at:', firebasaeConfigPath)
-} else {
-  console.error('firebase.json not found')
-  process.exit(1)
+  console.log(
+    `${chalk.bgGreen('DONE:')} ${chalk.green(
+      'firestore.indexes.json was overwritten with the indexes identified by the Firestore emulator report.',
+    )}`,
+  )
+  console.log()
+
+  process.exit(0)
 }
-
-const firebaseConfigRaw = await readFile(firebasaeConfigPath, 'utf8')
-
-if (!firebaseConfigRaw) {
-  console.error('firebase.json is empty')
-  process.exit(1)
-}
-
-const firebaseConfig: unknown = JSON.parse(firebaseConfigRaw)
-const indexesPath =
-  getFirestoreIndexesPath(firebaseConfig, firebasaeConfigPath) ??
-  // If not found in firebase.json, try to find firestore.indexes.json in the
-  // project root
-  (await findUp('firestore.indexes.json'))
-
-const indexesFileExist =
-  indexesPath !== undefined && (await pathExists(indexesPath))
-
-const indexesContent = indexesFileExist
-  ? await readFile(indexesPath, 'utf8')
-  : undefined
-
-const firestoreEmulatorPort = getFirestoreEmulatorPort(firebaseConfig)
-
-const indexesUrl = `http://127.0.0.1:${firestoreEmulatorPort.toString()}/emulator/v1/projects/${projectId}:indexUsage?database=projects/${projectId}/databases/(default)`
-
-let indexesResponse
-try {
-  indexesResponse = await fetch(indexesUrl)
-} catch (e) {
-  console.error('Error fetching indexes:', e)
-}
-
-console.log('Hello!')
-console.log('process.cwd()', process.cwd())
-console.log('indexedPath:', indexesPath)
-console.log('indexedPath exists:', indexesFileExist)
-console.log('indexedPath content:', indexesContent)
-console.log('indexes url:', indexesUrl)
-console.log('indexes response:', await indexesResponse?.json())
-console.log('Bye!')

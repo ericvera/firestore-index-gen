@@ -25,7 +25,7 @@ export const checkIndexes = (
   if (differences) {
     console.error(
       `${chalk.bgRed('NOT A MATCH:')} ${chalk.red(
-        'There were differences found between firestore.indexes.json and the Firestore emulator report. Update the indexes using the --overwrite flag.',
+        'There were differences found between firestore.indexes.json and the Firestore emulator report. Update the indexes using the --overwrite flag in the firestore-indexes-gen CLI.',
       )}`,
     )
     console.error()

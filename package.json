@@ -50,6 +50,7 @@
     "url": "https://github.com/ericvera/firestore-index-gen"
   },
   "keywords": [
+    "firebase",
     "firestore",
     "index",
     "generator",

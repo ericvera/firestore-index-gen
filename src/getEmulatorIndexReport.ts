@@ -11,7 +11,7 @@ export const getEmulatorIndexReport = async (
 
   try {
     indexesResponse = await fetch(indexesUrl)
-  } catch (error) {
+  } catch {
     logError(
       `Error fetching indexes. Ensure that the Firestore emulator is running at ${new URL(indexesUrl).origin}`,
     )

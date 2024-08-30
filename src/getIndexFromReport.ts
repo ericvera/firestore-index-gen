@@ -23,10 +23,16 @@ export const getIndexFromReport = (
       process.exit(1)
     }
 
-    const fields = index.fields.map(({ fieldPath, order }) => ({
-      fieldPath,
-      order,
-    }))
+    const fields = index.fields
+      // Apparently the __name__ field is included regardless of it being included in the index file.
+      // Ref: https://cloud.google.com/firestore/docs/reference/rest/v1/projects.databases.collectionGroups.indexes
+      // One problem is that when it is included the deployment will fail.
+      // Ref: https://github.com/firebase/firebase-tools/issues/1483
+      .filter(({ fieldPath }) => fieldPath !== '__name__')
+      .map(({ fieldPath, order }) => ({
+        fieldPath,
+        order,
+      }))
 
     const collectionGroup = getCollectionGroup(index.name)
 

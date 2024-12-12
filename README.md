@@ -82,3 +82,5 @@ Using `fig --projectId <projectId> --check` within your project, the CLI will pr
 ### `overwrite`
 
 Using `fig --projectId <projectId> --overwrite` will overwrite your current `firestore.indexes.json` with the indexes reported by the emulator.
+
+v.0

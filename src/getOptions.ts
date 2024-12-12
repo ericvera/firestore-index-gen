@@ -72,9 +72,9 @@ export const getOptions = (): Omit<Options, 'help'> => {
 
   if (
     help ||
-    projectId === undefined ||
-    overwrite === undefined ||
-    check === undefined
+    typeof projectId === 'undefined' ||
+    typeof overwrite === 'undefined' ||
+    typeof check === 'undefined'
   ) {
     console.log()
     console.log(chalk.bgYellow('WARNING: Missing required options'))

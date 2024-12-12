@@ -1,6 +1,7 @@
 import { findUp, pathExists } from 'find-up'
 import { readFile } from 'node:fs/promises'
 import * as path from 'node:path'
+import { jsonCompare } from './jsonCompare.js'
 import { logError } from './logError.js'
 import { FirebaseConfigLike, FirestoreIndexesLike } from './types.js'
 
@@ -33,6 +34,10 @@ export const getFirestoreIndexes = async (
 
   const indexesContent = await readFile(indexesPath, 'utf8')
   const indexes = JSON.parse(indexesContent) as FirestoreIndexesLike
+
+  // Sort indexes by collectionGroup and fields
+  indexes.indexes?.sort(jsonCompare)
+  indexes.fieldOverrides?.sort(jsonCompare)
 
   return { path: indexesPath, indexes }
 }

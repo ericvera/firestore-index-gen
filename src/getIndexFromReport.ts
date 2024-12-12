@@ -1,4 +1,5 @@
 import { getCollectionGroup } from './getCollectionGroup.js'
+import { jsonCompare } from './jsonCompare.js'
 import { logError } from './logError.js'
 import { EmulatorIndexInfoLike, FirestoreIndexesLike } from './types.js'
 
@@ -44,6 +45,12 @@ export const getIndexFromReport = (
       fields,
     })
   }
+
+  // Sort indexes by collectionGroup and fields
+  newIndexes.indexes?.sort(jsonCompare)
+
+  // Sort fieldOverrides by collectionGroup
+  newIndexes.fieldOverrides?.sort(jsonCompare)
 
   return newIndexes
 }

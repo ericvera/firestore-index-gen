@@ -9,13 +9,9 @@ import { getIndexFromReport } from './getIndexFromReport.js'
 import { getOptions } from './getOptions.js'
 import { printHeader } from './printHeader.js'
 
-const { projectId, check, overwrite } = getOptions()
+const { projectId, check, overwrite, print } = getOptions()
 
 const { path: configPath, config } = await getFirebaseConfig()
-
-// Get current indexes from firestore.indexes.json in the project
-const { path: indexesPath, indexes: currentIndexes } =
-  await getFirestoreIndexes(config, configPath)
 
 const indexReport = await getEmulatorIndexReport(
   projectId,
@@ -25,6 +21,16 @@ const indexReport = await getEmulatorIndexReport(
 const newIndexes = getIndexFromReport(indexReport.reports)
 
 printHeader()
+
+if (print) {
+  console.log(JSON.stringify(newIndexes, null, 2))
+  console.log()
+  process.exit(0)
+}
+
+// Get current indexes from firestore.indexes.json in the project
+const { path: indexesPath, indexes: currentIndexes } =
+  await getFirestoreIndexes(config, configPath)
 
 if (check) {
   checkIndexes(currentIndexes, newIndexes)

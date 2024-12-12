@@ -8,6 +8,7 @@ interface Options {
   help: boolean
   overwrite: boolean
   check: boolean
+  print: boolean
 }
 
 type OptionsInfo = Record<keyof Options, string>
@@ -17,14 +18,14 @@ const optionsInfo: OptionsInfo = {
   projectId: 'The Firebase project ID used with the emulator',
   overwrite: 'Overwrite firestore.indexes.json with the new indexes',
   check: 'Check if firestore.indexes.json is up to date with the new indexes',
+  print: 'Print the current emulator index content',
 }
 
 const printUsage = () => {
   printHeader()
 
   console.log('Usage:')
-  // One of --overwrite or --check is required
-  console.log('  fig --projectId <projectId> [--overwrite | --check]')
+  console.log('  fig --projectId <projectId> [--overwrite | --check | --print]')
   console.log()
   console.log('Options:')
 
@@ -59,6 +60,10 @@ export const getOptions = (): Omit<Options, 'help'> => {
           type: 'boolean',
           default: false,
         },
+        print: {
+          type: 'boolean',
+          default: false,
+        },
       },
     })
   } catch (error) {
@@ -68,13 +73,14 @@ export const getOptions = (): Omit<Options, 'help'> => {
     process.exit(1)
   }
 
-  const { projectId, help, overwrite, check } = args.values
+  const { projectId, help, overwrite, check, print } = args.values
 
   if (
     help ||
     typeof projectId === 'undefined' ||
     typeof overwrite === 'undefined' ||
-    typeof check === 'undefined'
+    typeof check === 'undefined' ||
+    typeof print === 'undefined'
   ) {
     console.log()
     console.log(chalk.bgYellow('WARNING: Missing required options'))
@@ -83,15 +89,17 @@ export const getOptions = (): Omit<Options, 'help'> => {
     process.exit(1)
   }
 
-  if (overwrite && check) {
-    logError('Cannot use both --overwrite and --check options')
+  const optionCount = [overwrite, check, print].filter(Boolean).length
+
+  if (optionCount > 1) {
+    logError('Can only use one of --overwrite, --check, or --print options')
 
     printUsage()
     process.exit(1)
   }
 
-  if (!overwrite && !check) {
-    logError('One of --overwrite or --check is required')
+  if (optionCount === 0) {
+    logError('One of --overwrite, --check, or --print is required')
 
     printUsage()
     process.exit(1)
@@ -101,5 +109,6 @@ export const getOptions = (): Omit<Options, 'help'> => {
     projectId,
     overwrite,
     check,
+    print,
   }
 }

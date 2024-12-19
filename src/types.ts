@@ -10,14 +10,14 @@ export interface FirebaseConfigLike {
 }
 
 type QueryScope = 'COLLECTION' | 'COLLECTION_GROUP'
-type Order = 'ASCENDING' | 'DESCENDING'
+export type Order = 'ASCENDING' | 'DESCENDING'
 
 export interface FirestoreIndexLike {
-  collectionGroup?: string | undefined
-  queryScope?: QueryScope | undefined
+  collectionGroup?: string
+  queryScope?: QueryScope
   fields?: {
-    fieldPath?: string | undefined
-    order?: Order | undefined
+    fieldPath?: string
+    order?: Order
   }[]
 }
 

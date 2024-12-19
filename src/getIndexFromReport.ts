@@ -1,7 +1,12 @@
 import { getCollectionGroup } from './getCollectionGroup.js'
 import { jsonCompare } from './jsonCompare.js'
 import { logError } from './logError.js'
-import { EmulatorIndexInfoLike, FirestoreIndexesLike } from './types.js'
+import {
+  EmulatorIndexInfoLike,
+  FirestoreIndexesLike,
+  FirestoreIndexLike,
+  Order,
+} from './types.js'
 
 export const getIndexFromReport = (
   reports: Exclude<EmulatorIndexInfoLike['reports'], undefined>,
@@ -30,20 +35,39 @@ export const getIndexFromReport = (
       // One problem is that when it is included the deployment will fail.
       // Ref: https://github.com/firebase/firebase-tools/issues/1483
       .filter(({ fieldPath }) => fieldPath !== '__name__')
-      .map(({ fieldPath, order }) => ({
-        fieldPath,
-        order,
-      }))
+      .map(({ fieldPath, order }) => {
+        const result: { fieldPath?: string; order?: Order } = {}
+
+        if (fieldPath) {
+          result.fieldPath = fieldPath
+        }
+
+        if (order) {
+          result.order = order
+        }
+
+        return result
+      })
 
     const collectionGroup = getCollectionGroup(index.name)
 
     const { queryScope } = index
 
-    newIndexes.indexes?.push({
-      collectionGroup,
-      queryScope,
-      fields,
-    })
+    const nextIndex: FirestoreIndexLike = {}
+
+    if (collectionGroup) {
+      nextIndex.collectionGroup = collectionGroup
+    }
+
+    if (queryScope) {
+      nextIndex.queryScope = queryScope
+    }
+
+    if (fields.length > 0) {
+      nextIndex.fields = fields
+    }
+
+    newIndexes.indexes?.push(nextIndex)
   }
 
   // Sort indexes by collectionGroup and fields

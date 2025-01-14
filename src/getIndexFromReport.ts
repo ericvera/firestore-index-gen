@@ -3,9 +3,9 @@ import { jsonCompare } from './jsonCompare.js'
 import { logError } from './logError.js'
 import {
   EmulatorIndexInfoLike,
+  Field,
   FirestoreIndexesLike,
   FirestoreIndexLike,
-  Order,
 } from './types.js'
 
 export const getIndexFromReport = (
@@ -35,15 +35,27 @@ export const getIndexFromReport = (
       // One problem is that when it is included the deployment will fail.
       // Ref: https://github.com/firebase/firebase-tools/issues/1483
       .filter(({ fieldPath }) => fieldPath !== '__name__')
-      .map(({ fieldPath, order }) => {
-        const result: { fieldPath?: string; order?: Order } = {}
+      .map(({ fieldPath, order, arrayConfig, vectorConfig }) => {
+        let result: Field | undefined
 
-        if (fieldPath) {
-          result.fieldPath = fieldPath
+        if (!fieldPath) {
+          throw new Error('Field path is required.')
         }
 
         if (order) {
-          result.order = order
+          result = { fieldPath, order }
+        }
+
+        if (arrayConfig) {
+          result = { fieldPath, arrayConfig }
+        }
+
+        if (vectorConfig) {
+          throw new Error('Vector config is not supported yet.')
+        }
+
+        if (!result) {
+          throw new Error('Invalid field configuration.')
         }
 
         return result

@@ -36,6 +36,10 @@ The author of the comment also makes the following notes:
 
     Disclaimer: this is unlaunched and the functionality might change in backward-incompatible ways.
 
+## Limitations
+
+- Fields with vector configurations are not currently supported by this tool. Contributions to add support for vector fields are welcome!
+
 ## Possible solution for generating the indexes with `firestore-index-gen`
 
 > This assumes that **all** of your queries are executed during your testing.

@@ -11,14 +11,35 @@ export interface FirebaseConfigLike {
 
 type QueryScope = 'COLLECTION' | 'COLLECTION_GROUP'
 export type Order = 'ASCENDING' | 'DESCENDING'
+export type ArrayConfig = 'CONTAINS'
+
+export interface OrderField {
+  fieldPath: string
+  order: Order
+  arrayConfig?: never
+  vectorConfig?: never
+}
+
+export interface ArrayField {
+  fieldPath: string
+  arrayConfig: ArrayConfig
+  vectorConfig?: never
+  order?: never
+}
+
+export interface VectorField {
+  fieldPath: string
+  vectorConfig: unknown
+  arrayConfig?: never
+  order?: never
+}
+
+export type Field = OrderField | ArrayField | VectorField
 
 export interface FirestoreIndexLike {
   collectionGroup?: string
   queryScope?: QueryScope
-  fields?: {
-    fieldPath?: string
-    order?: Order
-  }[]
+  fields?: Field[]
 }
 
 export interface FirestoreIndexesLike {
@@ -31,10 +52,7 @@ export interface EmulatorIndexInfoLike {
     index?: {
       name?: string
       queryScope?: QueryScope
-      fields?: {
-        fieldPath?: string
-        order?: Order
-      }[]
+      fields?: Field[]
     }
     numQueries?: number
   }[]

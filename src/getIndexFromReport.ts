@@ -1,9 +1,11 @@
 import { getCollectionGroup } from './getCollectionGroup.js'
-import { jsonCompare } from './jsonCompare.js'
 import { logError } from './logError.js'
+import { sortFieldOverrideIndexes } from './sortFieldOverrideIndexes.js'
+import { sortFirestoreIndexes } from './sortFirestoreIndexes.js'
 import {
   EmulatorIndexInfoLike,
   Field,
+  FieldOverride,
   FirestoreIndexesLike,
   FirestoreIndexLike,
 } from './types.js'
@@ -61,15 +63,84 @@ export const getIndexFromReport = (
         return result
       })
 
-    // Skip single-field indexes as Firebase handles these automatically
-    // Only composite indexes (2+ fields) need to be explicitly defined
+    const collectionGroup = getCollectionGroup(index.name)
+    const { queryScope } = index
+
+    // Handle single-field indexes with COLLECTION_GROUP scope as fieldOverrides
+    if (fields.length === 1 && queryScope === 'COLLECTION_GROUP') {
+      const field = fields[0]
+
+      if (!field) {
+        continue
+      }
+
+      // COLLECTION_GROUP scope requires a collectionGroup to be defined
+      if (!collectionGroup) {
+        logError(
+          `Index with COLLECTION_GROUP scope is missing collectionGroup: ${index.name || 'unknown'}`,
+        )
+        process.exit(1)
+      }
+
+      // Check if we already have a fieldOverride for this field and collection
+      // group
+      const existingOverride = newIndexes.fieldOverrides.find(
+        (override) =>
+          override.collectionGroup === collectionGroup &&
+          override.fieldPath === field.fieldPath,
+      )
+
+      if (!existingOverride) {
+        // Create a new fieldOverride entry
+        const fieldOverride: FieldOverride = {
+          collectionGroup,
+          fieldPath: field.fieldPath,
+          ttl: false,
+          indexes: [],
+        }
+
+        // Add ALL standard COLLECTION scope indexes (ASC, DESC, CONTAINS)
+        // Firebase always includes all of these for fieldOverrides
+        fieldOverride.indexes.push(
+          { order: 'ASCENDING', queryScope: 'COLLECTION' },
+          { order: 'DESCENDING', queryScope: 'COLLECTION' },
+          { arrayConfig: 'CONTAINS', queryScope: 'COLLECTION' },
+        )
+
+        // Add the COLLECTION_GROUP index based on the actual field type
+        if ('order' in field) {
+          fieldOverride.indexes.push({
+            order: field.order,
+            queryScope: 'COLLECTION_GROUP',
+          })
+        } else if ('arrayConfig' in field) {
+          fieldOverride.indexes.push({
+            arrayConfig: field.arrayConfig,
+            queryScope: 'COLLECTION_GROUP',
+          })
+        }
+
+        // Sort indexes within the fieldOverride for consistent output
+        fieldOverride.indexes.sort(sortFieldOverrideIndexes)
+
+        newIndexes.fieldOverrides.push(fieldOverride)
+      }
+      continue
+    }
+
+    // Skip single-field indexes with COLLECTION scope as Firebase handles these automatically
     if (fields.length <= 1) {
       continue
     }
 
-    const collectionGroup = getCollectionGroup(index.name)
-
-    const { queryScope } = index
+    // Handle composite indexes (2+ fields)
+    // COLLECTION_GROUP scope requires a collectionGroup to be defined
+    if (queryScope === 'COLLECTION_GROUP' && !collectionGroup) {
+      logError(
+        `Index with COLLECTION_GROUP scope is missing collectionGroup: ${index.name || 'unknown'}`,
+      )
+      process.exit(1)
+    }
 
     const nextIndex: FirestoreIndexLike = {}
 
@@ -85,14 +156,11 @@ export const getIndexFromReport = (
       nextIndex.fields = fields
     }
 
-    newIndexes.indexes?.push(nextIndex)
+    newIndexes.indexes.push(nextIndex)
   }
 
-  // Sort indexes by collectionGroup and fields
-  newIndexes.indexes?.sort(jsonCompare)
-
-  // Sort fieldOverrides by collectionGroup
-  newIndexes.fieldOverrides?.sort(jsonCompare)
+  // Sort all indexes and fieldOverrides for consistent output
+  sortFirestoreIndexes(newIndexes)
 
   return newIndexes
 }

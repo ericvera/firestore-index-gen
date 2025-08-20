@@ -42,9 +42,22 @@ export interface FirestoreIndexLike {
   fields?: Field[]
 }
 
+export interface FieldOverrideIndex {
+  order?: Order
+  arrayConfig?: ArrayConfig
+  queryScope: QueryScope
+}
+
+export interface FieldOverride {
+  collectionGroup: string
+  fieldPath: string
+  ttl?: boolean
+  indexes: FieldOverrideIndex[]
+}
+
 export interface FirestoreIndexesLike {
-  indexes?: FirestoreIndexLike[]
-  fieldOverrides?: unknown[]
+  indexes: FirestoreIndexLike[]
+  fieldOverrides: FieldOverride[]
 }
 
 export interface EmulatorIndexInfoLike {

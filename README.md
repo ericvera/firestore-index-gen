@@ -42,7 +42,9 @@ The author of the comment also makes the following notes:
 
 ## Important Notes
 
-- **Single-field indexes are automatically filtered out**: Firebase automatically creates single-field indexes for all fields, so this tool only generates composite indexes (indexes with 2 or more fields). Single-field queries don't require explicit index definitions.
+- **Single-field indexes with COLLECTION scope are automatically filtered out**: Firebase automatically creates single-field indexes for all fields at the collection level, so these are not included in the generated output.
+
+- **Single-field indexes with COLLECTION_GROUP scope are handled as fieldOverrides**: When a single-field index requires collection group scope, it's added to the `fieldOverrides` section with all necessary index configurations (ASCENDING, DESCENDING, and CONTAINS for COLLECTION scope, plus the specific COLLECTION_GROUP index).
 
 ## Possible solution for generating the indexes with `firestore-index-gen`
 

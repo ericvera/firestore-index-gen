@@ -1,8 +1,8 @@
 import { findUp, pathExists } from 'find-up'
 import { readFile } from 'node:fs/promises'
 import * as path from 'node:path'
-import { jsonCompare } from './jsonCompare.js'
 import { logError } from './logError.js'
+import { sortFirestoreIndexes } from './sortFirestoreIndexes.js'
 import { FirebaseConfigLike, FirestoreIndexesLike } from './types.js'
 
 export const getFirestoreIndexes = async (
@@ -33,11 +33,18 @@ export const getFirestoreIndexes = async (
   }
 
   const indexesContent = await readFile(indexesPath, 'utf8')
-  const indexes = JSON.parse(indexesContent) as FirestoreIndexesLike
+  const parsedIndexes = JSON.parse(
+    indexesContent,
+  ) as Partial<FirestoreIndexesLike>
 
-  // Sort indexes by collectionGroup and fields
-  indexes.indexes?.sort(jsonCompare)
-  indexes.fieldOverrides?.sort(jsonCompare)
+  // Ensure arrays are always present
+  const indexes: FirestoreIndexesLike = {
+    indexes: parsedIndexes.indexes || [],
+    fieldOverrides: parsedIndexes.fieldOverrides || [],
+  }
+
+  // Sort all indexes and fieldOverrides for consistent output
+  sortFirestoreIndexes(indexes)
 
   return { path: indexesPath, indexes }
 }

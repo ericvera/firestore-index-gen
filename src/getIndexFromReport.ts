@@ -61,6 +61,12 @@ export const getIndexFromReport = (
         return result
       })
 
+    // Skip single-field indexes as Firebase handles these automatically
+    // Only composite indexes (2+ fields) need to be explicitly defined
+    if (fields.length <= 1) {
+      continue
+    }
+
     const collectionGroup = getCollectionGroup(index.name)
 
     const { queryScope } = index

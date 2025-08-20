@@ -40,6 +40,10 @@ The author of the comment also makes the following notes:
 
 - Fields with vector configurations are not currently supported by this tool. Contributions to add support for vector fields are welcome!
 
+## Important Notes
+
+- **Single-field indexes are automatically filtered out**: Firebase automatically creates single-field indexes for all fields, so this tool only generates composite indexes (indexes with 2 or more fields). Single-field queries don't require explicit index definitions.
+
 ## Possible solution for generating the indexes with `firestore-index-gen`
 
 > This assumes that **all** of your queries are executed during your testing.

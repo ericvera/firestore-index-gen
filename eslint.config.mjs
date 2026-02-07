@@ -1,20 +1,83 @@
 // @ts-check
-
 import eslint from '@eslint/js'
+import { defineConfig, globalIgnores } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
+export default defineConfig(
   eslint.configs.recommended,
+
   ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+
   {
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.eslint.json', './tsconfig.json'],
+        project: ['./tsconfig.json', './tsconfig.eslint.json'],
         tsconfigRootDir: import.meta.dirname,
+        jsDocParsingMode: 'all',
       },
     },
   },
+
+  globalIgnores([
+    '**/dist/**',
+    '**/node_modules/**',
+    '.cursor',
+    '.github',
+    '.husky',
+    '.vscode',
+    '.yarn',
+  ]),
+
+  // Other configs
   {
-    ignores: ['dist/*', '.yarn/*', '.vscode/*', '.github/*'],
+    name: 'local:rules',
+    rules: {
+      // Disable until typescript-eslint fixes ESLint 10 compatibility
+      '@typescript-eslint/no-deprecated': 'off',
+      curly: 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          ignoreRestSiblings: true,
+        },
+      ],
+
+      // Enforce comments above code, never inline
+      'line-comment-position': ['error', { position: 'above' }],
+
+      // Enforce max length for comments only
+      'max-len': [
+        'error',
+        {
+          // Effectively unlimited for code (prettier takes care of this)
+          code: 999,
+          // Max 80 characters for comments only
+          comments: 80,
+          ignoreUrls: true,
+        },
+      ],
+    },
+  },
+  // Rule to block describe wrappers in test files
+  {
+    name: 'local:test-rules',
+    files: ['**/*.test.ts', '**/*.test.js', '**/*.spec.ts', '**/*.spec.js'],
+    rules: {
+      // Block usage of describe wrappers in test files
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'describe',
+          message:
+            'Use flat test structure with it() methods only. Do not use describe wrappers.',
+        },
+      ],
+    },
+  },
+  // Disable type-checked rules for config files
+  {
+    files: ['*.config.mjs'],
+    ...tseslint.configs.disableTypeChecked,
   },
 )

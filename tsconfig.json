@@ -20,7 +20,7 @@
 
     /* Emit */
     "outDir": "dist" /* Specify an output folder for all emitted files. */,
-    "removeComments": true /* Disable emitting comments. */,
+    "removeComments": false /* Disable emitting comments. */,
 
     "preserveConstEnums": true /* Disable erasing 'const enum' declarations in generated code. */,
 

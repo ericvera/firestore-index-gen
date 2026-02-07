@@ -32,8 +32,10 @@ export const getIndexFromReport = (
     }
 
     const fields = index.fields
-      // Apparently the __name__ field is included regardless of it being included in the index file.
-      // Ref: https://cloud.google.com/firestore/docs/reference/rest/v1/projects.databases.collectionGroups.indexes
+      // Apparently the __name__ field is included regardless of it being
+      // included in the index file.
+      // Ref: https://cloud.google.com/firestore/docs/reference/rest/v1/
+      //      projects.databases.collectionGroups.indexes
       // One problem is that when it is included the deployment will fail.
       // Ref: https://github.com/firebase/firebase-tools/issues/1483
       .filter(({ fieldPath }) => fieldPath !== '__name__')
@@ -77,7 +79,7 @@ export const getIndexFromReport = (
       // COLLECTION_GROUP scope requires a collectionGroup to be defined
       if (!collectionGroup) {
         logError(
-          `Index with COLLECTION_GROUP scope is missing collectionGroup: ${index.name || 'unknown'}`,
+          `Index with COLLECTION_GROUP scope is missing collectionGroup: ${index.name ?? 'unknown'}`,
         )
         process.exit(1)
       }
@@ -128,7 +130,8 @@ export const getIndexFromReport = (
       continue
     }
 
-    // Skip single-field indexes with COLLECTION scope as Firebase handles these automatically
+    // Skip single-field indexes with COLLECTION scope as Firebase handles
+    // these automatically
     if (fields.length <= 1) {
       continue
     }
@@ -137,7 +140,7 @@ export const getIndexFromReport = (
     // COLLECTION_GROUP scope requires a collectionGroup to be defined
     if (queryScope === 'COLLECTION_GROUP' && !collectionGroup) {
       logError(
-        `Index with COLLECTION_GROUP scope is missing collectionGroup: ${index.name || 'unknown'}`,
+        `Index with COLLECTION_GROUP scope is missing collectionGroup: ${index.name ?? 'unknown'}`,
       )
       process.exit(1)
     }

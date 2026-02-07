@@ -6,7 +6,7 @@
     ".": "./dist/index.js"
   },
   "bin": {
-    "fig": "./dist/index.js"
+    "fig": "dist/index.js"
   },
   "files": [
     "dist",
@@ -26,18 +26,18 @@
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable"
   },
-  "packageManager": "yarn@4.9.2",
+  "packageManager": "yarn@4.12.0",
   "devDependencies": {
-    "@eslint/js": "^9.33.0",
-    "@tsconfig/strictest": "^2.0.5",
-    "@types/node": "^24.3.0",
-    "eslint": "^9.33.0",
+    "@eslint/js": "^10.0.1",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^24.10.11",
+    "eslint": "^10.0.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
+    "lint-staged": "^16.2.7",
     "pinst": "^3.0.0",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.40.0"
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
   },
   "prettier": {
     "tabWidth": 2,
@@ -46,7 +46,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ericvera/firestore-index-gen"
+    "url": "git+https://github.com/ericvera/firestore-index-gen.git"
   },
   "keywords": [
     "firebase",
@@ -62,8 +62,8 @@
     "*": "prettier --ignore-unknown --write"
   },
   "dependencies": {
-    "chalk": "^5.6.0",
-    "find-up": "^7.0.0",
-    "jest-diff": "^30.0.5"
+    "chalk": "^5.6.2",
+    "find-up": "^8.0.0",
+    "jest-diff": "^30.2.0"
   }
 }

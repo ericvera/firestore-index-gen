@@ -1,5 +1,5 @@
-import { findUp, pathExists } from 'find-up'
-import { readFile } from 'node:fs/promises'
+import { findUp } from 'find-up'
+import { access, readFile } from 'node:fs/promises'
 import * as path from 'node:path'
 import { logError } from './logError.js'
 import { sortFirestoreIndexes } from './sortFirestoreIndexes.js'
@@ -25,7 +25,13 @@ export const getFirestoreIndexes = async (
     indexesPath = await findUp('firestore.indexes.json')
   }
 
-  if (!indexesPath || !(await pathExists(indexesPath))) {
+  const exists = indexesPath
+    ? await access(indexesPath)
+        .then(() => true)
+        .catch(() => false)
+    : false
+
+  if (!indexesPath || !exists) {
     logError(
       'firestore.indexes.json file not found neither at the location specified in firebase.json nor in the project root',
     )
@@ -39,8 +45,8 @@ export const getFirestoreIndexes = async (
 
   // Ensure arrays are always present
   const indexes: FirestoreIndexesLike = {
-    indexes: parsedIndexes.indexes || [],
-    fieldOverrides: parsedIndexes.fieldOverrides || [],
+    indexes: parsedIndexes.indexes ?? [],
+    fieldOverrides: parsedIndexes.fieldOverrides ?? [],
   }
 
   // Sort all indexes and fieldOverrides for consistent output

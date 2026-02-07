@@ -5,6 +5,7 @@ import { printHeader } from './printHeader.js'
 
 interface Options {
   projectId: string
+  config: string | undefined
   help: boolean
   overwrite: boolean
   check: boolean
@@ -16,6 +17,7 @@ type OptionsInfo = Record<keyof Options, string>
 const optionsInfo: OptionsInfo = {
   help: 'Print this help message',
   projectId: 'The Firebase project ID used with the emulator',
+  config: 'Path to firebase.json (default: auto-detected)',
   overwrite: 'Overwrite firestore.indexes.json with the new indexes',
   check: 'Check if firestore.indexes.json is up to date with the new indexes',
   print: 'Print the current emulator index content',
@@ -25,7 +27,9 @@ const printUsage = () => {
   printHeader()
 
   console.log('Usage:')
-  console.log('  fig --projectId <projectId> [--overwrite | --check | --print]')
+  console.log(
+    '  fig --projectId <projectId> [--config <path>] [--overwrite | --check | --print]',
+  )
   console.log()
   console.log('Options:')
 
@@ -52,6 +56,9 @@ export const getOptions = (): Omit<Options, 'help'> => {
         projectId: {
           type: 'string',
         },
+        config: {
+          type: 'string',
+        },
         overwrite: {
           type: 'boolean',
           default: false,
@@ -73,7 +80,7 @@ export const getOptions = (): Omit<Options, 'help'> => {
     process.exit(1)
   }
 
-  const { projectId, help, overwrite, check, print } = args.values
+  const { projectId, config, help, overwrite, check, print } = args.values
 
   if (
     help ||
@@ -107,6 +114,7 @@ export const getOptions = (): Omit<Options, 'help'> => {
 
   return {
     projectId,
+    config,
     overwrite,
     check,
     print,

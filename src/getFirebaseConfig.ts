@@ -1,14 +1,21 @@
 import { findUp } from 'find-up'
 import { readFile } from 'node:fs/promises'
+import { isAbsolute } from 'node:path'
 import { logError } from './logError.js'
 import { FirebaseConfigLike } from './types.js'
 
-export const getFirebaseConfig = async (): Promise<{
+export const getFirebaseConfig = async (
+  configPath?: string,
+): Promise<{
   path: string
   config: FirebaseConfigLike
 }> => {
   // Find firebase.json as path to firestore.indexes.json may be defined there
-  const path = await findUp('firebase.json')
+  const path = configPath
+    ? isAbsolute(configPath)
+      ? configPath
+      : await findUp(configPath)
+    : await findUp('firebase.json')
 
   if (!path) {
     logError(

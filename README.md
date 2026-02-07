@@ -76,13 +76,23 @@ To install globally (can also be added as a dev dependency to your project):
 
 ```console
 Usage:
-  fig --projectId <projectId> [--overwrite | --check]
+  fig --projectId <projectId> [--config <path>] [--overwrite | --check | --print]
 
 Options:
   --help         Print this help message
   --projectId    The Firebase project ID used with the emulator
+  --config       Path to firebase.json (default: auto-detected)
   --overwrite    Overwrite firestore.indexes.json with the new indexes
   --check        Check if firestore.indexes.json is up to date with the new indexes
+  --print        Print the current emulator index content
+```
+
+### `config`
+
+By default, `fig` will auto-detect the `firebase.json` file by searching up from the current directory. If you have multiple Firebase configurations (e.g., `firebase.test.json` for testing), you can specify the path explicitly:
+
+```bash
+fig --projectId my-project --config firebase.test.json --check
 ```
 
 ### `check`

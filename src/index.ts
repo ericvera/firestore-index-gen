@@ -9,9 +9,15 @@ import { getIndexFromReport } from './getIndexFromReport.js'
 import { getOptions } from './getOptions.js'
 import { printHeader } from './printHeader.js'
 
-const { projectId, check, overwrite, print } = getOptions()
+const {
+  projectId,
+  config: configPathOption,
+  check,
+  overwrite,
+  print,
+} = getOptions()
 
-const { path: configPath, config } = await getFirebaseConfig()
+const { path: configPath, config } = await getFirebaseConfig(configPathOption)
 
 const indexReport = await getEmulatorIndexReport(
   projectId,
